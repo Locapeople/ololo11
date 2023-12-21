@@ -33,6 +33,14 @@ class MoneyTransferTest {
         dashboardPage.transferMoney(1, 1, 6666);
     }
 
+    @Test
+    @DisplayName("should FAIL with transfer ILLEGAL amount of money from card 2 to card 1")
+    void transferMoneyWithIllegalAmountAndLegalTo1From2() {
+        open("http://localhost:9999");
+        var dashboardPage = doAuth();
+        dashboardPage.transferMoney(1, 2, 100001);
+    }
+
     private DashboardPage doAuth() {
       var loginPage = new LoginPage();
       var authInfo = DataHelper.getAuthInfo();
