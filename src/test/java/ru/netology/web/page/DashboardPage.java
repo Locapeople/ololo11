@@ -3,7 +3,6 @@ package ru.netology.web.page;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import lombok.val;
-import org.openqa.selenium.support.FindBy;
 import ru.netology.web.data.DataHelper;
 
 import java.util.Objects;
@@ -38,7 +37,6 @@ public class DashboardPage {
   }
 
   public int getCardBalance(String id) {
-    String text = null;
     for (var card : cards) {
         if (Objects.requireNonNull(card.getAttribute("data-test-id")).equals(id)) {
             return extractBalance(Objects.requireNonNull(card.text()));
