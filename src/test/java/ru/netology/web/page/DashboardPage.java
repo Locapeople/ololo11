@@ -86,8 +86,10 @@ public class DashboardPage {
     newBalances[0] = getCardBalance(getCardIDByListIndex(toCardIndex));
     newBalances[1] = getCardBalance(getCardIDByListIndex(fromCardIndex));
     // проверка изменения баланса на обоих картах на указанную в переводе сумму
-    assert newBalances[0] == oldBalances[0] + amount;
-    assert newBalances[1] == oldBalances[1] - amount;
+    if (toCardIndex != fromCardIndex) {
+      assert newBalances[0] == oldBalances[0] + amount;
+      assert newBalances[1] == oldBalances[1] - amount;
+    }
     // доп. проверка "от дурака" - балансы на картах должны быть неотрицательными
     assert newBalances[toCardIndex-1] >= 0;
     assert newBalances[fromCardIndex-1] >= 0;
