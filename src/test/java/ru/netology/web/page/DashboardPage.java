@@ -20,23 +20,12 @@ public class DashboardPage {
 
   public DashboardPage() {
     heading.shouldBe(visible);
-    collectCards();
-  }
-
-  private static void collectCards() {
     // разработчики выдали всего 2 конкретных карты
-    cardsInfo = new DataHelper.CardInfo[2];
-    cardsInfo[0] = new DataHelper.CardInfo(
-            cards.get(0).getAttribute("data-test-id"),
-            "5559 0000 0000 0001",
-            cards.get(0).$("[data-test-id=action-deposit]"));
-    cardsInfo[1] = new DataHelper.CardInfo(
-            cards.get(1).getAttribute("data-test-id"),
-            "5559 0000 0000 0002",
-            cards.get(1).$("[data-test-id=action-deposit]"));
+    cardsInfo = DataHelper.getCardsInfo(cards);
   }
 
-  public int getCardBalance(String id) {
+
+  public static int getCardBalance(String id) {
     for (var card : cards) {
         if (Objects.requireNonNull(card.getAttribute("data-test-id")).equals(id)) {
             return extractBalance(Objects.requireNonNull(card.text()));
@@ -47,7 +36,7 @@ public class DashboardPage {
     return -1;
   }
 
-  private int extractBalance(String text) {
+  private static int extractBalance(String text) {
     final String balanceStart = "баланс: ";
     val start = text.indexOf(balanceStart);
     val finish = text.indexOf(" р.");
@@ -55,49 +44,18 @@ public class DashboardPage {
     return Integer.parseInt(value);
   }
 
-  public String getCardIDByListIndex(int index) {
+  public static String getCardIDByListIndex(int index) {
     return cardsInfo[index-1].getCardID();
   }
 
-  public String getCardNumberByListIndex(int index) {
+  public static String getCardNumberByListIndex(int index) {
     return cardsInfo[index-1].getCardNumber();
   }
 
-  public void transferMoney(int toCardIndex, int fromCardIndex, int amount) {
-    // получить текущие балансы на выбранных картах
-    int[] oldBalances = new int[2];
-    oldBalances[0] = getCardBalance(getCardIDByListIndex(toCardIndex));
-    oldBalances[1] = getCardBalance(getCardIDByListIndex(fromCardIndex));
-    // нажать "Пополнить" напротив нужной карты
-    depositCardAction(toCardIndex);
-    // ввести данные
-    $("[data-test-id=amount] input").setValue(String.valueOf(amount));
-    $("[data-test-id=from] input").setValue(getCardNumberByListIndex(fromCardIndex));
-    $("[data-test-id=action-transfer]").click();
-    // проверка на успех перевода - смена вида формы и отсутствие ошибки
-    $("[data-test-id=error-notification]").shouldBe(hidden);
-    $("h1").shouldBe(visible, exactText("Ваши карты"));
-    // проверить обновление баланса на выбранных картах
-    checkUpdatedBalance(toCardIndex, fromCardIndex, oldBalances, amount);
-  }
-
-  private void checkUpdatedBalance(int toCardIndex, int fromCardIndex, int[] oldBalances, int amount) {
-    int[] newBalances = new int[2];
-    newBalances[0] = getCardBalance(getCardIDByListIndex(toCardIndex));
-    newBalances[1] = getCardBalance(getCardIDByListIndex(fromCardIndex));
-    // проверка изменения баланса на обоих картах на указанную в переводе сумму
-    if (toCardIndex != fromCardIndex) {
-      assert newBalances[0] == oldBalances[0] + amount;
-      assert newBalances[1] == oldBalances[1] - amount;
-    }
-    // доп. проверка "от дурака" - балансы на картах должны быть неотрицательными
-    assert newBalances[toCardIndex-1] >= 0;
-    assert newBalances[fromCardIndex-1] >= 0;
-  }
-
-  public void depositCardAction(int cardIndex) {
+  public DepositPage depositCardAction(int cardIndex) {
     // всего 2 карты
     assert cardIndex >= 1 && cardIndex <= 2;
     cardsInfo[cardIndex-1].getDepositButton().click();
+    return new DepositPage();
   }
 }
