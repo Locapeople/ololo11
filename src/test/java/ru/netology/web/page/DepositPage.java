@@ -2,16 +2,18 @@ package ru.netology.web.page;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
-import static ru.netology.web.page.DashboardPage.*;
 
 public class DepositPage {
-    public void transferMoney(int fromCardIndex, int amount) {
+    public void transferMoney(String fromCardNumber, int amount) {
         // ввести данные
         $("[data-test-id=amount] input").setValue(String.valueOf(amount));
-        $("[data-test-id=from] input").setValue(getCardNumberByListIndex(fromCardIndex));
+        $("[data-test-id=from] input").setValue(fromCardNumber);
+        // нажать кнопку
         $("[data-test-id=action-transfer]").click();
-        // проверка на успех перевода - смена вида формы и отсутствие ошибки
+    }
+
+    public void checkNoErrorMessage() {
+        // проверка на успех перевода - отсутствие ошибки на текущей форме
         $("[data-test-id=error-notification]").shouldBe(hidden);
-        $("h1").shouldBe(visible, exactText("Ваши карты"));
     }
 }

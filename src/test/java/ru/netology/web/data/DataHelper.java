@@ -1,7 +1,5 @@
 package ru.netology.web.data;
 
-import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.SelenideElement;
 import lombok.Value;
 
 public class DataHelper {
@@ -30,19 +28,16 @@ public class DataHelper {
   public static class CardInfo {
     private String cardID;
     private String cardNumber;
-    private SelenideElement depositButton;
   }
 
-  public static CardInfo[] getCardsInfo(ElementsCollection cards) {
+  public static CardInfo[] getCardsInfo() {
     CardInfo[] cardsInfo = new CardInfo[2];
     cardsInfo[0] = new CardInfo(
-            cards.get(0).getAttribute("data-test-id"),
-            "5559 0000 0000 0001",
-            cards.get(0).$("[data-test-id=action-deposit]"));
+            "92df3f1c-a033-48e6-8390-206f6b1f56c0",
+            "5559 0000 0000 0001");
     cardsInfo[1] = new CardInfo(
-            cards.get(1).getAttribute("data-test-id"),
-            "5559 0000 0000 0002",
-            cards.get(1).$("[data-test-id=action-deposit]"));
+            "0f3f5c2a-249e-4c3d-8287-09f7a039391d",
+            "5559 0000 0000 0002");
     return cardsInfo;
   }
 }

@@ -10,7 +10,6 @@ import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.netology.web.page.DashboardPage.getCardBalance;
-import static ru.netology.web.page.DashboardPage.getCardIDByListIndex;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MoneyTransferTest {
@@ -20,22 +19,26 @@ class MoneyTransferTest {
     void transferMoneyWithLegalAmountAndLegalTo1From2() {
         open("http://localhost:9999");
         var dashboardPage = doAuth();
-        int toCardIndex = 1;
-        int fromCardIndex = 2;
+        int toCardIndex = 0;
+        int fromCardIndex = 1;
+        DataHelper.CardInfo[] cardsInfo = DataHelper.getCardsInfo();
         int amount = 1000;
-        int[] oldBalances = getBalances(toCardIndex, fromCardIndex);
+        int[] oldBalances = getBalances(cardsInfo);
         // нажать "Пополнить" напротив нужной карты
-        DepositPage depositPage = dashboardPage.depositCardAction(toCardIndex);
-        depositPage.transferMoney(fromCardIndex, amount);
+        DepositPage depositPage = dashboardPage.depositCardAction(cardsInfo[toCardIndex].getCardID());
+        depositPage.transferMoney(cardsInfo[fromCardIndex].getCardNumber(), amount);
+        depositPage.checkNoErrorMessage();
+        dashboardPage.checkIfActive();
         // проверить обновление баланса на выбранных картах
-        int[] expected = new int[]{
+        int[] expected = new int[] {
                 oldBalances[0] + amount,
                 oldBalances[1] - amount
         };
-        int[] actual = getBalances(toCardIndex, fromCardIndex);
+        int[] actual = getBalances(cardsInfo);
         // проверка изменения баланса на обоих картах на указанную в переводе сумму
         assertEquals(expected[0], actual[0]);
         assertEquals(expected[1], actual[1]);
+        assertBalancesArePositive(cardsInfo);
     }
 
     @Test
@@ -44,22 +47,26 @@ class MoneyTransferTest {
     void transferMoneyWithLegalAmountAndLegalTo2From1() {
         open("http://localhost:9999");
         var dashboardPage = doAuth();
-        int toCardIndex = 2;
-        int fromCardIndex = 1;
+        int toCardIndex = 1;
+        int fromCardIndex = 0;
+        DataHelper.CardInfo[] cardsInfo = DataHelper.getCardsInfo();
         int amount = 1000;
-        int[] oldBalances = getBalances(toCardIndex, fromCardIndex);
+        int[] oldBalances = getBalances(cardsInfo);
         // нажать "Пополнить" напротив нужной карты
-        DepositPage depositPage = dashboardPage.depositCardAction(toCardIndex);
-        depositPage.transferMoney(fromCardIndex, amount);
+        DepositPage depositPage = dashboardPage.depositCardAction(cardsInfo[toCardIndex].getCardID());
+        depositPage.transferMoney(cardsInfo[fromCardIndex].getCardNumber(), amount);
+        depositPage.checkNoErrorMessage();
+        dashboardPage.checkIfActive();
         // проверить обновление баланса на выбранных картах
-        int[] expected = new int[]{
-                oldBalances[0] + amount,
-                oldBalances[1] - amount
+        int[] expected = new int[] {
+                oldBalances[0] - amount,
+                oldBalances[1] + amount
         };
-        int[] actual = getBalances(toCardIndex, fromCardIndex);
+        int[] actual = getBalances(cardsInfo);
         // проверка изменения баланса на обоих картах на указанную в переводе сумму
         assertEquals(expected[0], actual[0]);
         assertEquals(expected[1], actual[1]);
+        assertBalancesArePositive(cardsInfo);
     }
 
     @Test
@@ -68,22 +75,26 @@ class MoneyTransferTest {
     void transferMoneyWithLegalAmountAndLegalTo1From1() {
         open("http://localhost:9999");
         var dashboardPage = doAuth();
-        int toCardIndex = 1;
-        int fromCardIndex = 1;
-        int amount = 6666;
-        int[] oldBalances = getBalances(toCardIndex, fromCardIndex);
+        int toCardIndex = 0;
+        int fromCardIndex = 0;
+        DataHelper.CardInfo[] cardsInfo = DataHelper.getCardsInfo();
+        int amount = 1000;
+        int[] oldBalances = getBalances(cardsInfo);
         // нажать "Пополнить" напротив нужной карты
-        DepositPage depositPage = dashboardPage.depositCardAction(toCardIndex);
-        depositPage.transferMoney(fromCardIndex, amount);
-        // проверить обновление баланса
-        int[] expected = new int[]{
+        DepositPage depositPage = dashboardPage.depositCardAction(cardsInfo[toCardIndex].getCardID());
+        depositPage.transferMoney(cardsInfo[fromCardIndex].getCardNumber(), amount);
+        depositPage.checkNoErrorMessage();
+        dashboardPage.checkIfActive();
+        // проверить обновление баланса на выбранных картах
+        int[] expected = new int[] {
                 oldBalances[0],
                 oldBalances[1]
         };
-        int[] actual = getBalances(toCardIndex, fromCardIndex);
-        // проверка изменения баланса на обоих картах на указанную в переводе сумму
+        int[] actual = getBalances(cardsInfo);
+        // проверка отсутствия изменения баланса на обоих картах
         assertEquals(expected[0], actual[0]);
         assertEquals(expected[1], actual[1]);
+        assertBalancesArePositive(cardsInfo);
     }
 
     @Test
@@ -92,27 +103,30 @@ class MoneyTransferTest {
     void transferMoneyWithIllegalAmountAndLegalTo1From2() {
         open("http://localhost:9999");
         var dashboardPage = doAuth();
-        int toCardIndex = 1;
-        int fromCardIndex = 2;
+        int toCardIndex = 0;
+        int fromCardIndex = 1;
+        DataHelper.CardInfo[] cardsInfo = DataHelper.getCardsInfo();
         int amount = 10001;
-        int[] oldBalances = getBalances(toCardIndex, fromCardIndex);
+        int[] oldBalances = getBalances(cardsInfo);
         // нажать "Пополнить" напротив нужной карты
-        DepositPage depositPage = dashboardPage.depositCardAction(toCardIndex);
-        depositPage.transferMoney(fromCardIndex, amount);
+        DepositPage depositPage = dashboardPage.depositCardAction(cardsInfo[toCardIndex].getCardID());
+        depositPage.transferMoney(cardsInfo[fromCardIndex].getCardNumber(), amount);
+        depositPage.checkNoErrorMessage();
+        dashboardPage.checkIfActive();
         // проверить обновление баланса на выбранных картах
-        int[] expected = new int[]{
+        int[] expected = new int[] {
                 oldBalances[0] + amount,
                 oldBalances[1] - amount
         };
-        int[] actual = getBalances(toCardIndex, fromCardIndex);
+        int[] actual = getBalances(cardsInfo);
         // проверка изменения баланса на обоих картах на указанную в переводе сумму
         assertEquals(expected[0], actual[0]);
         assertEquals(expected[1], actual[1]);
+        assertBalancesArePositive(cardsInfo);
     }
 
-    @AfterEach
-    void assertBalancesArePositive() {
-        int[] newBalances = getBalances(1, 2);
+    void assertBalancesArePositive(DataHelper.CardInfo[] cardsInfo) {
+        int[] newBalances = getBalances(cardsInfo);
         // доп. проверка "от дурака" - балансы на картах должны быть неотрицательными
         assertTrue(newBalances[0] >= 0);
         assertTrue(newBalances[1] >= 0);
@@ -126,10 +140,10 @@ class MoneyTransferTest {
         return verificationPage.validVerify(verificationCode);
     }
 
-    private int[] getBalances(int toCardIndex, int fromCardIndex) {
+    private int[] getBalances(DataHelper.CardInfo[] cardsInfo) {
         return new int[]{
-                getCardBalance(getCardIDByListIndex(toCardIndex)),
-                getCardBalance(getCardIDByListIndex(fromCardIndex))
+                getCardBalance(cardsInfo[0].getCardID()),
+                getCardBalance(cardsInfo[1].getCardID())
         };
     }
 }
